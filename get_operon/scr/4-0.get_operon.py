@@ -1,11 +1,7 @@
-#警告 无法完成闭环 可能需要手动处理
-#在结果中，搜索每张表最后一个localtag，只有出现 最后一个localtag-第一个localtag  第一个localtag-第二个localtag （或者紧接着的连接）
-#后者拼接上前者  手动更新  同时更新operon顺序
-#所以只要搜索每张表第一个localtag，只要不同时出现 最后一个localtag-第一个localtag  第一个localtag-第二个localtag 就说明首尾不连接，可不干预先
+#warning: search the first localtag in every sheet，attention for if the first localtag-last localtag  first localtag-second localtag situatation exists.
 
-#只求chromosome的operon
+#only for chromosome operon
 
-#多重条件组合技  计算operon与基因的绑定关系
 import openpyxl as xl
 
 
@@ -18,10 +14,10 @@ def read_list_from_file(file_path):
     with open(file_path, 'r') as file:
         return [line.strip() for line in file]
     
-#染色体sheetID
+#chromosome sheetID
 chr_list = read_list_from_file(chr_list_file)
 
-#构造{localtag1-localtag2:pearson_num}
+#{localtag1-localtag2:pearson_num}
 pearson_num_dict = {}
 with open(input_pearson_num_txt) as pearson_num:
     for i in pearson_num:
@@ -30,7 +26,6 @@ with open(input_pearson_num_txt) as pearson_num:
         pearson_num_count = line[1]
         pearson_num_dict[localtag_count] = pearson_num_count
 
-#遍历excel表
 inter_localtag_list_small = []
 inter_localtag_dict = {}
 operon_num = 1
@@ -39,12 +34,11 @@ workbook = xl.load_workbook(input_excel_path)
 for sheet_name in chr_list:
     worksheet = workbook[sheet_name]
     num = 1
-    finial = worksheet.max_row #表格数量
+    finial = worksheet.max_row #sheet number
     while num<finial:
         operon = "openon_" + str(operon_num)
         num = num + 1
 
-        #取值
         if num == finial:
             cell_last_localtag = worksheet["E"+str(num)]
             last_localtag = cell_last_localtag.value
@@ -53,7 +47,7 @@ for sheet_name in chr_list:
             inter_localtag = last_localtag + "-" + next_localtag
             pearson_num_inter = float(pearson_num_dict[inter_localtag]) #获得PCC(float)
             cell_intergap = worksheet["G"+str(num)]
-            intergap = int(cell_intergap.value) #获得基因间距（int）
+            intergap = int(cell_intergap.value) #get intergene distance（int）
         else:
             cell_last_localtag = worksheet["E"+str(num)]
             last_localtag = cell_last_localtag.value
@@ -62,13 +56,12 @@ for sheet_name in chr_list:
             inter_localtag = last_localtag + "-" + next_localtag
             pearson_num_inter = float(pearson_num_dict[inter_localtag]) #获得PCC(float)
             cell_intergap = worksheet["G"+str(num)]
-            intergap = int(cell_intergap.value) #获得基因间距（int）
+            intergap = int(cell_intergap.value) #get intergene distance（int）
 
 
-        #判断
-        #PCC=nan 说明其中一个是假想基因 认为二者没有联系
+        #PCC=nan indicates psuedo gene,no relations
         if pearson_num_inter == "nan": 
-            #锁定operon组合 去重 保留顺序
+            #get operon gene organization ,no repeat, keep the gene order
             localtag_new_list = []
             if inter_localtag_list_small != []:
                 for localtag_new in inter_localtag_list_small:
@@ -78,13 +71,13 @@ for sheet_name in chr_list:
             localtag_new_list = []
             inter_localtag_list_small = []
             operon_num = operon_num + 1
-        #多条件组合 只要满足其中一个条件，就认为两个基因有关联
+        #if satisfy one of the conditon,we consider the two genes have relations
         elif (intergap <= 10) or (intergap <= 50 and pearson_num_inter > 0.5)or (intergap <= 100 and pearson_num_inter > 0.6)or (intergap <= 200 and pearson_num_inter > 0.7)or (intergap <= 500 and pearson_num_inter > 0.8):
             inter_localtag_list_small.append(last_localtag)
             inter_localtag_list_small.append(next_localtag)
-            #最后一个
+            #last localtag
             if num == finial:
-                #锁定operon组合 去重 保留顺序
+                 #get operon gene organization ,no repeat, keep the gene order
                 localtag_new_list = []
                 if inter_localtag_list_small != []:
                     for localtag_new in inter_localtag_list_small:
@@ -94,9 +87,9 @@ for sheet_name in chr_list:
                 localtag_new_list = []
                 inter_localtag_list_small = []
                 operon_num = operon_num + 1
-        #不满足条件的 认为二者没有联系
+        #the two genes dont have relations
         else:
-            #锁定operon组合 去重 保留顺序
+             #get operon gene organization ,no repeat, keep the gene order
             localtag_new_list = []
             if inter_localtag_list_small != []:
                 for localtag_new in inter_localtag_list_small:
@@ -108,21 +101,21 @@ for sheet_name in chr_list:
             operon_num = operon_num + 1
 
 
-#读取上述已经分组的localtag集合
+#get localtag has been grouped
 localtag_many_list = []
 localtag_output_list = []
 for key_1,value_1 in inter_localtag_dict.items():
     localtag_output_list.append(value_1)
     localtag_many_list.extend(value_1)
 
-#读取excel文件中所有localtag
+#get all localtag in excel file
 localtag_all_list = []
 workbook = xl.load_workbook(input_excel_path)
 # for sheet_name in workbook.sheetnames:
 for sheet_name in chr_list :
     worksheet = workbook[sheet_name]
     num = 1
-    finial = worksheet.max_row #表格数量
+    finial = worksheet.max_row 
     while num<finial:
         num = num + 1
         cell_localtag = worksheet["E"+str(num)]
@@ -131,11 +124,8 @@ for sheet_name in chr_list :
 print("localtag_all_list")
 print(len(localtag_all_list))
 
-
-#作差，提取出非多基因组合的基因
 single_localtag_list = list( set(localtag_all_list) - set(localtag_many_list) )
 
-#写入数据  重置operon的顺序 从1开始
 localtag_output_list.extend(single_localtag_list)
 print("localtag_output_list")
 print(len(localtag_output_list))
@@ -153,8 +143,7 @@ for localtag_output in localtag_output_list:
     else:
         localtag_output_new = localtag_output
     worksheeet_excel.append([operon_name_new,localtag_output_new])
-    operon_num_new = operon_num_new + 1
-#保存结果               
+    operon_num_new = operon_num_new + 1        
 workbook_excel.save(output_operon_gene)
 
 
