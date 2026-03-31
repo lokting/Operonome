@@ -1,5 +1,3 @@
-#计算gff.xlsx文件中的 Intergenegap
-
 import os
 import re
 import openpyxl as xl
@@ -19,7 +17,6 @@ def get_genome_length(name, genome_lengths):
             return genome_lengths[key]
     return None
 
-# 对负链的表 根据start坐标做一次降序
 def sort_sheet_by_column(worksheet, column_name):
     col_idx = None
     for idx, cell in enumerate(worksheet[1]):
@@ -44,10 +41,9 @@ genome_lengths = read_genome_lengths(genome_length_file)
 workbook = xl.load_workbook(input_excel_path)
 for sheet_name in workbook.sheetnames:
     worksheet = workbook[sheet_name]
-    #分正负表
     if "+" in sheet_name:
         num = 1
-        finial = worksheet.max_row #表格数量
+        finial = worksheet.max_row 
         while num<finial:
             num = num + 1
 
@@ -61,12 +57,10 @@ for sheet_name in workbook.sheetnames:
                 intergapnum = genemone_length - last_end_num + next_start_num - 1
 
             else:
-            # 读取值
                 cell_last_end_num = worksheet["C"+str(num)]
                 last_end_num = int(cell_last_end_num.value)
                 cell_next_start_num = worksheet["B"+str(num+1)]
                 next_start_num = int(cell_next_start_num.value)
-                #区分三种情况
                 if next_start_num > last_end_num :
                     intergapnum = next_start_num - last_end_num - 1
                 if next_start_num == last_end_num :
@@ -80,7 +74,7 @@ for sheet_name in workbook.sheetnames:
         sort_sheet_by_column(worksheet, "Start_coordinate")
 
         num = 1
-        finial = worksheet.max_row #表格数量
+        finial = worksheet.max_row 
         while num<finial:
             num = num + 1
 
@@ -97,7 +91,6 @@ for sheet_name in workbook.sheetnames:
                 last_end_num = int(cell_last_end_num.value)
                 cell_next_start_num = worksheet["B"+str(num+1)]
                 next_start_num = int(cell_next_start_num.value)
-                #区分三种情况
                 if last_end_num > next_start_num :
                     intergapnum = last_end_num - next_start_num - 1
                 if last_end_num == next_start_num :
@@ -106,6 +99,5 @@ for sheet_name in workbook.sheetnames:
                     intergapnum = last_end_num - next_start_num + 1
 
             worksheet["G"+str(num)] = intergapnum
-
-#保存结果               
+             
 workbook.save(input_excel_path)
