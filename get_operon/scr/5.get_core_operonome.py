@@ -1,4 +1,3 @@
-#提取core operonome
 import openpyxl as xl 
 import os 
 import csv
@@ -28,10 +27,10 @@ def load_gene_clusters(CG_file):
     cluster_to_genes = {}
     with open(CG_file, 'r') as f:
         reader = csv.reader(f, delimiter='\t')
-        headers = next(reader)  # 读取表头
-        strains = headers  # 表头即为菌株名称
+        headers = next(reader)  
+        strains = headers 
         gene_to_cluster = {strain: {} for strain in strains}
-        cluster_id = 1  # 动态生成簇编号
+        cluster_id = 1 
         for row in reader:
             genes = row
             cluster_to_genes[cluster_id] = {}
@@ -40,11 +39,10 @@ def load_gene_clusters(CG_file):
                 if gene:
                     gene_to_cluster[strain][gene] = cluster_id
                     cluster_to_genes[cluster_id][strain] = gene
-            cluster_id += 1  # 编号递增
+            cluster_id += 1 
     return strains, gene_to_cluster, cluster_to_genes
 
 def find_core_operons(strain_operons, gene_to_cluster, strains):
-    # 存储每个菌株的operon signature
     strain_signatures = {strain: {} for strain in strains}
     
     for strain in strains:
@@ -63,18 +61,15 @@ def find_core_operons(strain_operons, gene_to_cluster, strains):
                     strain_signatures[strain][signature] = []
                 strain_signatures[strain][signature].append(operon)
     
-    # 收集所有可能的signature
     all_signatures = set()
     for strain in strains:
         all_signatures.update(strain_signatures[strain].keys())
     
-    # 筛选存在于所有菌株中的signature
     core_signatures = []
     for sig in all_signatures:
         if all(sig in strain_signatures[strain] for strain in strains):
             core_signatures.append(sig)
     
-    # 构建核心operonome
     core_operons = []
     for sig in core_signatures:
         operon_group = {}
@@ -85,19 +80,15 @@ def find_core_operons(strain_operons, gene_to_cluster, strains):
     return core_operons
 
 def main():
-    # 配置路径
     operon_dir= r"input/operon_file"
     CG_file = r"input/CG_ALL.txt"
     output_file = r"output/core_operonome.txt" 
     
-    # 加载数据
     strains, gene_to_cluster, _ = load_gene_clusters(CG_file)
     strain_operons = load_strain_data(operon_dir, strains)
     
-    # 查找核心operon
     core_operons = find_core_operons(strain_operons, gene_to_cluster, strains)
     
-    # 写入输出文件
     # with open(output_file, 'w') as f:
     #     writer = csv.writer(f, delimiter='\t')
     #     header = ["Signature"] + [f"{strain}_operons" for strain in strains]
@@ -111,10 +102,9 @@ def main():
     #             row.append(operons)
     #         writer.writerow(row)
 
-    # 写入输出文件（去掉Signature列）
     with open(output_file, 'w') as f:
         writer = csv.writer(f, delimiter='\t')
-        header = [f"{strain}_operons" for strain in strains]  # 只写菌株的operon列
+        header = [f"{strain}_operons" for strain in strains]  
         writer.writerow(header)
         
         for group in core_operons:
