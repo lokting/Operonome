@@ -37,7 +37,7 @@ Operonome/
 
 ```
 
-## Module 1. Operon and core operonome
+## Module 1. Operon and Core operonome
 
 ### Input files
 
