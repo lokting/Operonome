@@ -1,0 +1,5 @@
+biopython
+openpyxl
+pandas
+bioinfokit
+scipy
