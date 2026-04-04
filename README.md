@@ -1,30 +1,36 @@
-# NeighborCoE
+# Operonome-NeighborCoE
 
-NeighborCoE is a Python-based pipeline for identifying operons from bacterial genome annotation and count data, and for further defining the core operonome and pan operonome.
+NeighborCoE is a Python-based toolkit for bacterial operon analysis, including:
+1. operon identification from genome annotation and count data,
+2. core operonome identification across strains, and
+3. pan-operonome network construction.
 
-## Features
-- Parse GBFF/GFF annotations into operon-ready tables
-- Integrate count files and genomic context
-- Infer operons based on intergenic organization
-- Annotate operon gene composition for each strain
-- Identify the core operonome across strains using cluster-mapped operon signatures
+## Overview
 
-# PanOperonome
-Automated tool for pan-operonome network analysis.
-  
-## When using this package
-## Some input files are necessary
+This repository currently contains two modules:
 
-1.Count File
+- **Operon/Core Operonome module**: identifies operons from genome annotation and count data, and further defines the core operonome across strains.
+- **PanOperonome module**: constructs pan-operonome networks from strain-level operon annotations and pan-genome / homologous-gene relationships.
 
-2.Gff Gbff File
+## Repository structure
 
-3.Chromosome and plasmid ID (including its strand)
-
-4.Genome length
-
-5.Core-genome cluster file for core operonome identification
-
-6.Pan-genome results and mutual blast results for pan operonome identification
-
-The example file format is in images/
+```text
+Operonome/
+├── get_operon/
+│   └── scr/
+│       ├── 0.gbff_to_excel.py
+│       ├── 1.gff_to_excel.py
+│       ├── 2.count_file.py
+│       ├── 3.get_intergenegap.py
+│       ├── 4-0.get_operon.py
+│       ├── 4-1.get_operon_function.py
+│       └── 5.get_core_operonome.py
+├── PanOperonome/
+│   └── src/
+│       ├── stage_0_input.py
+│       ├── stage_1_preprocess.py
+│       ├── stage_2_popgid.py
+│       └── stage_3_network.py
+├── images/
+├── README.md
+└── requirement.txt
