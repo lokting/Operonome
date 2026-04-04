@@ -26,6 +26,7 @@ Operonome/
 │       ├── 4-1.get_operon_function.py
 │       └── 5.get_core_operonome.py
 ├── PanOperonome/
+│   ├── main.py
 │   └── src/
 │       ├── stage_0_input.py
 │       ├── stage_1_preprocess.py
@@ -84,7 +85,7 @@ Required inputs include:
 
 ### Workflow
 
-Run scripts in the following order:
+The pipeline can be run through the unified entry script `PanOperonome/main.py`, which automatically executes the stage scripts in order:
 
 1. `stage_0_input.py`
 2. `stage_1_preprocess.py`
