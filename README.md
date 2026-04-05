@@ -32,6 +32,7 @@ Operonome/
 │       ├── stage_1_preprocess.py
 │       ├── stage_2_popgid.py
 │       └── stage_3_network.py
+│       └── stage_4_finalize.py
 ├── images/
 ├── README.md
 └── requirement.txt
@@ -91,6 +92,7 @@ The pipeline can be run through the unified entry script `PanOperonome/main.py`,
 2. `stage_1_preprocess.py`
 3. `stage_2_popgid.py`
 4. `stage_3_network.py`
+5. `stage_4_finalize.py`
 
 ### Output
 
