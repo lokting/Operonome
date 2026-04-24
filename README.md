@@ -1,4 +1,4 @@
-# Operonome-NeighborCoE
+# NeighborCoE
 
 NeighborCoE is a Python-based toolkit for bacterial operonome analysis. It includes three main modules:
 
