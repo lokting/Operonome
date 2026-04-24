@@ -1,107 +1,322 @@
-# Operonome-NeighborCoE
+# Operonome
 
-NeighborCoE is a Python-based toolkit for bacterial operon analysis, including:
-1. operon identification from genome annotation and count data,
-2. core operonome identification across strains, and
-3. pan-operonome network construction.
+Operonome is a Python-based toolkit for bacterial operonome analysis. It includes three main modules:
 
-## Overview
+1. **GetOperon**: identification of operons from genome annotation and transcriptomic count data.
+2. **CoreTUs**: identification of core transcriptional units / core operonome across strains.
+3. **PanTUs**: construction of pan-operonome networks from strain-specific operon annotations and homologous-gene relationships.
 
-This repository currently contains two modules:
+Representative input and output files are provided in the `examples/` directory.
 
-- **Operon/Core Operonome module**: identifies operons from genome annotation and count data, and further defines the core operonome across strains.
-- **PanOperonome module**: constructs pan-operonome networks from strain-level operon annotations and pan-genome / homologous-gene relationships.
+---
 
 ## Repository structure
 
 ```text
 Operonome/
-├── get_operon/
-│   └── scr/
-│       ├── 0.gbff_to_excel.py
-│       ├── 1.gff_to_excel.py
-│       ├── 2.count_file.py
-│       ├── 3.get_intergenegap.py
-│       ├── 4-0.get_operon.py
-│       ├── 4-1.get_operon_function.py
-│       └── 5.get_core_operonome.py
-├── PanOperonome/
+├── GetOperon/
+│   ├── code/
+│   │   ├── 0.gbff_to_excel.py
+│   │   ├── 1.gff_to_excel.py
+│   │   ├── 2.count_file.py
+│   │   ├── 3.get_intergenegap.py
+│   │   ├── 4-0.get_operon.py
+│   │   └── 4-1.get_operon_function.py
+│   └── operon.sh
+├── CoreTUs/
+│   └── get_core_operonome.py
+├── PanTUs/
 │   ├── main.py
 │   └── src/
 │       ├── stage_0_input.py
 │       ├── stage_1_preprocess.py
 │       ├── stage_2_popgid.py
-│       └── stage_3_network.py
+│       ├── stage_3_network.py
 │       └── stage_4_finalize.py
-├── images/
-├── README.md
-└── requirement.txt
-
+├── examples/
+│   ├── GetOperon/
+│   │   ├── GetOperon_input_data/
+│   │   └── GetOperon_output_data/
+│   ├── CoreTUs/
+│   │   ├── CoreTUs_input_data/
+│   │   └── CoreTUs_output_data/
+│   └── PanTUs/
+│       ├── PanTUs_input_data/
+│       └── PanTUs_output_data/
+├── requirement.txt
+└── README.md
 ```
 
-## Module 1. Operon and Core operonome
+---
+
+## Installation
+
+Clone the repository and enter the working directory:
+
+```bash
+git clone https://github.com/lokting/Operonome.git
+cd Operonome
+```
+
+Create a conda environment:
+
+```bash
+conda create -n operonome python=3.8 -y
+conda activate operonome
+```
+
+Install the required Python packages:
+
+```bash
+pip install -r requirement.txt
+```
+
+---
+
+## Module 1. GetOperon
+
+### Purpose
+
+`GetOperon` identifies operons using genome annotation files, read count files, intergenic distance, gene orientation, and expression correlation between adjacent genes.
 
 ### Input files
 
-Required inputs include:
+Place all input files under:
 
-- Count file
-- GFF/GBFF annotation file
-- Chromosome and plasmid IDs (including strand information)
-- Genome length
-- Core-genome cluster file for core operonome identification
+```text
+GetOperon/input/
+```
 
-Example input formats are provided in `images/`.
+The required input structure is:
 
-### Workflow
+```text
+GetOperon/input/
+├── Count_file/
+│   ├── sample1_count.txt
+│   ├── sample2_count.txt
+│   └── ...
+├── genome_gbff/
+│   └── genome.gbff
+├── genome_gff/
+│   └── genome.gff
+├── chr_list.txt
+├── pla_list.txt
+├── genome_length.txt
+└── local_tag_dele.txt
+```
 
-Run scripts in the following order:
+Example files are provided in:
 
-1. `0.gbff_to_excel.py`
-2. `1.gff_to_excel.py`
-3. `2.count_file.py`
-4. `3.get_intergenegap.py`
-5. `4-0.get_operon.py`
-6. `4-1.get_operon_function.py`
-7. `5.get_core_operonome.py`
+```text
+examples/GetOperon/GetOperon_input_data/
+```
 
-### Output
+### Run GetOperon
 
-Typical outputs include:
+Enter the `GetOperon` directory:
 
-- processed annotation tables
-- intergenic-gap tables
-- strain-specific operon annotation tables
-- core operonome results
+```bash
+cd GetOperon
+```
 
-## Module 2. PanOperonome
+Prepare the input and output folders:
+
+```bash
+mkdir -p input output tmp_output
+```
+
+If you want to run the provided example data, copy the example input files into `input/`:
+
+```bash
+cp -r ../examples/GetOperon/GetOperon_input_data/* input/
+```
+
+Run the full GetOperon pipeline:
+
+```bash
+bash operon.sh
+```
+
+Return to the main repository directory:
+
+```bash
+cd ..
+```
+
+### Output files
+
+The main output file is:
+
+```text
+GetOperon/output/operon-gene.xlsx
+```
+
+This file contains the predicted operon ID, gene composition, and functional annotation.
+
+---
+
+## Module 2. CoreTUs
+
+### Purpose
+
+`CoreTUs` identifies core operons / core transcriptional units shared across multiple strains based on core-genome clusters and strain-specific operon annotations.
 
 ### Input files
 
-Required inputs include:
+Place all input files under:
 
-- strain-specific operon-gene annotation files
-- pan-genome cluster / PG mapping file
-- homologous operon summary or mutual BLAST-derived operon relationship file
+```text
+CoreTUs/input/
+```
 
-### Workflow
+The required input structure is:
 
-The pipeline can be run through the unified entry script `PanOperonome/main.py`, which automatically executes the stage scripts in order:
+```text
+CoreTUs/input/
+├── CG_ALL.txt
+└── operon_file/
+    ├── strain1_operon-gene.xlsx
+    ├── strain2_operon-gene.xlsx
+    └── ...
+```
 
-1. `stage_0_input.py`
-2. `stage_1_preprocess.py`
-3. `stage_2_popgid.py`
-4. `stage_3_network.py`
-5. `stage_4_finalize.py`
+Example files are provided in:
 
-### Output
+```text
+examples/CoreTUs/CoreTUs_input_data/
+```
 
-Typical outputs include:
+### Run CoreTUs
 
-- pan-operonome network results
+Enter the `CoreTUs` directory:
+
+```bash
+cd CoreTUs
+```
+
+Prepare the input and output folders:
+
+```bash
+mkdir -p input output
+```
+
+If you want to run the provided example data, copy the example input files into `input/`:
+
+```bash
+cp -r ../examples/CoreTUs/CoreTUs_input_data/* input/
+```
+
+Run the CoreTUs script:
+
+```bash
+python get_core_operonome.py
+```
+
+Return to the main repository directory:
+
+```bash
+cd ..
+```
+
+### Output files
+
+The main output file is:
+
+```text
+CoreTUs/output/core_operonome.txt
+```
+
+This file contains the identified core operonome across the input strains.
+
+---
+
+## Module 3. PanTUs
+
+### Purpose
+
+`PanTUs` constructs pan-operonome networks using strain-specific operon annotations and homologous-gene / pan-genome information.
+
+### Input files
+
+Place strain-specific operon files under:
+
+```text
+PanTUs/data/input/
+```
+
+Place reference files under:
+
+```text
+PanTUs/data/reference/
+```
+
+The required input structure is:
+
+```text
+PanTUs/data/
+├── input/
+│   ├── strain1_operon-gene.xlsx
+│   ├── strain2_operon-gene.xlsx
+│   └── ...
+└── reference/
+    ├── PG.txt
+    └── nPO_homo.xlsx
+```
+
+Example files are provided in:
+
+```text
+examples/PanTUs/PanTUs_input_data/
+```
+
+### Run PanTUs
+
+Enter the `PanTUs` directory:
+
+```bash
+cd PanTUs
+```
+
+Prepare the input, reference, and output folders:
+
+```bash
+mkdir -p data/input data/reference output
+```
+
+If you want to run the provided example data, copy the example input files into `data/`:
+
+```bash
+cp -r ../examples/PanTUs/PanTUs_input_data/input/* data/input/
+cp -r ../examples/PanTUs/PanTUs_input_data/reference/* data/reference/
+```
+
+Run the full PanTUs pipeline:
+
+```bash
+python main.py
+```
+
+Return to the main repository directory:
+
+```bash
+cd ..
+```
+
+### Output files
+
+The main output file is:
+
+```text
+PanTUs/output/network_results/network_final.csv
+```
+
+This file contains the final pan-operonome network.
+
+---
 
 ## Notes
 
-- Scripts are designed to be run sequentially.
-- Please adjust input/output paths according to your local environment.
-- Example file formats are provided in `images/`.
+- All scripts should be run from their own module directory. For example, run `bash operon.sh` inside `GetOperon/`, not from the main `Operonome/` directory.
+- The example input and output files are provided only as representative data to show the required file formats.
+- The required input files must be kept in the input folder even if they do not contain any records. Do not delete empty input files; keep them as blank placeholder files when no corresponding data are available.
+
